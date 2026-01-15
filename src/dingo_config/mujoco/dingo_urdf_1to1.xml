@@ -1,0 +1,158 @@
+<mujoco model="dingo_urdf_1to1">
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true" meshdir="../meshes" />
+  <option timestep="0.002" gravity="0 0 -9.81" iterations="50" solver="Newton" />
+
+  <visual>
+    <!-- Brighter defaults for viewer usability -->
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.85 0.85 0.85" specular="0.15 0.15 0.15" />
+    <map znear="0.01" zfar="30" fogstart="8" fogend="25" />
+    <quality shadowsize="2048" />
+  </visual>
+
+  <default>
+    <joint damping="0.6" armature="0.02" limited="true" />
+    <geom friction="1.0 0.005 0.0001" condim="4" solref="0.002 1" solimp="0.9 0.95 0.001" />
+    <position ctrllimited="true" />
+  </default>
+
+  <asset>
+    <texture name="skybox" type="skybox" builtin="gradient" rgb1="0.9 0.95 1.0" rgb2="0.3 0.4 0.6" width="256" height="256" />
+    <material name="ground_mat" rgba="0.55 0.55 0.55 1" reflectance="0.15" specular="0.2" />
+    <!-- Visual meshes (STL) taken from dingo_config/meshes. -->
+    <mesh name="base_link_mesh" file="base_link.STL" />
+
+    <mesh name="FL_link1_mesh" file="FL_link1.STL" />
+    <mesh name="FL_link2_mesh" file="FL_link2.STL" />
+    <mesh name="FL_link3_mesh" file="FL_link3.STL" />
+
+    <mesh name="FR_link1_mesh" file="FR_link1.STL" />
+    <mesh name="FR_link2_mesh" file="FR_link2.STL" />
+    <mesh name="FR_link3_mesh" file="FR_link3.STL" />
+
+    <mesh name="RL_link1_mesh" file="RL_link1.STL" />
+    <mesh name="RL_link2_mesh" file="RL_link2.STL" />
+    <mesh name="RL_link3_mesh" file="RL_link3.STL" />
+
+    <mesh name="RR_link1_mesh" file="RR_link1.STL" />
+    <mesh name="RR_link2_mesh" file="RR_link2.STL" />
+    <mesh name="RR_link3_mesh" file="RR_link3.STL" />
+  </asset>
+
+  <worldbody>
+    <!-- A couple of lights to avoid the "too dark" default look. -->
+    <light name="sun" pos="0 0 3" dir="0 0 -1" directional="true" diffuse="1 1 1" specular="0.2 0.2 0.2" castshadow="true" />
+    <light name="fill1" pos="2 2 2" dir="-1 -1 -1" directional="true" diffuse="0.6 0.6 0.6" specular="0.05 0.05 0.05" />
+    <light name="fill2" pos="-2 1.5 2" dir="1 -0.7 -1" directional="true" diffuse="0.45 0.45 0.45" specular="0.05 0.05 0.05" />
+
+    <geom name="ground" type="plane" size="5 5 0.1" material="ground_mat" />
+
+    <!-- Base link frame matches URDF base_link. -->
+    <body name="base_link" pos="0 0 0.25" quat="1 0 0 0">
+      <freejoint />
+
+      <!-- Keep trunk collision simple/stable; use mesh for visuals only. -->
+      <geom name="trunk_col" type="box" size="0.10 0.05 0.03" rgba="0.6 0.6 0.7 0.15" contype="1" conaffinity="1" mass="0.81776" />
+      <geom name="trunk_vis" type="mesh" mesh="base_link_mesh" rgba="0.6 0.6 0.7 1" contype="0" conaffinity="0" />
+
+      <!-- ============ FRONT LEFT (URDF 1:1 joint origins + rpy) ============ -->
+      <body name="FL_link1" pos="0.11165 0.061 -0.0144" quat="0.499998163 0.500000000 0.500001837 0.500000000">
+        <joint name="FL_theta1" type="hinge" axis="0 0 1" range="-0.785398 0.785398" />
+        <geom name="FL_link1_vis" type="mesh" mesh="FL_link1_mesh" rgba="0.2 0.2 0.25 1" contype="0" conaffinity="0" />
+
+        <body name="FL_link2" pos="0.0496000007984339 0.014400000013256 0" quat="0.000000227 0.707106781 -0.000000227 -0.707106781">
+          <joint name="FL_theta2" type="hinge" axis="0 0 1" range="-3 3" />
+          <geom name="FL_link2_vis" type="mesh" mesh="FL_link2_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+          <body name="FL_link3" pos="0.129999999999897 0 0" quat="0.707106915 0 0 0.707106647">
+            <joint name="FL_theta3" type="hinge" axis="0 0 1" range="-3 3" />
+            <geom name="FL_link3_vis" type="mesh" mesh="FL_link3_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+            <body name="FL_link4" pos="0.138136646352288 0 0" quat="1 0 0 0">
+              <geom name="FL_foot" type="sphere" size="0.02" rgba="0.2 0.2 0.2 1" contype="1" conaffinity="1" mass="0.05" />
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- ============ FRONT RIGHT (URDF 1:1) ============ -->
+      <body name="FR_link1" pos="0.111650000000002 -0.0609999999999988 -0.0144000000000242" quat="0.500000000 0.500000000 0.500000000 0.500000000">
+        <joint name="FR_theta1" type="hinge" axis="0 0 -1" range="-0.785398 0.785398" />
+        <geom name="FR_link1_vis" type="mesh" mesh="FR_link1_mesh" rgba="0.2 0.2 0.25 1" contype="0" conaffinity="0" />
+
+        <body name="FR_link2" pos="-0.0495999992169121 0.0144000000000242 0" quat="0.000000214 0.707106781 -0.000000214 -0.707106781">
+          <joint name="FR_theta2" type="hinge" axis="0 0 1" range="-3 3" />
+          <geom name="FR_link2_vis" type="mesh" mesh="FR_link2_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+          <body name="FR_link3" pos="0.13000000353672 0 0" quat="0.707106902 0 0 0.707106660">
+            <joint name="FR_theta3" type="hinge" axis="0 0 1" range="-3 3" />
+            <geom name="FR_link3_vis" type="mesh" mesh="FR_link3_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+            <body name="FR_link4" pos="0.13813664635243 0 0" quat="1 0 0 0">
+              <geom name="FR_foot" type="sphere" size="0.02" rgba="0.2 0.2 0.2 1" contype="1" conaffinity="1" mass="0.05" />
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- ============ REAR LEFT (URDF 1:1) ============ -->
+      <body name="RL_link1" pos="-0.11165 0.061 -0.0144" quat="0.499998163 0.500000000 0.500001837 0.500000000">
+        <joint name="RL_theta1" type="hinge" axis="0 0 1" range="-0.785398 0.785398" />
+        <geom name="RL_link1_vis" type="mesh" mesh="RL_link1_mesh" rgba="0.2 0.2 0.25 1" contype="0" conaffinity="0" />
+
+        <body name="RL_link2" pos="0.0496000007984574 0.014399999996394 0" quat="0.000000227 0.707106781 -0.000000227 -0.707106781">
+          <joint name="RL_theta2" type="hinge" axis="0 0 1" range="-3 3" />
+          <geom name="RL_link2_vis" type="mesh" mesh="RL_link2_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+          <body name="RL_link3" pos="0.129999999994849 0 0" quat="0.707106915 0 0 0.707106647">
+            <joint name="RL_theta3" type="hinge" axis="0 0 1" range="-3 3" />
+            <geom name="RL_link3_vis" type="mesh" mesh="RL_link3_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+            <body name="RL_link4" pos="0.138136646352323 0 0" quat="1 0 0 0">
+              <geom name="RL_foot" type="sphere" size="0.02" rgba="0.2 0.2 0.2 1" contype="1" conaffinity="1" mass="0.05" />
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- ============ REAR RIGHT (URDF 1:1) ============ -->
+      <body name="RR_link1" pos="-0.111650000000003 -0.0609999999999995 -0.0144000000000178" quat="0.500000000 0.500000000 0.500000000 0.500000000">
+        <joint name="RR_theta1" type="hinge" axis="0 0 -1" range="-0.785398 0.785398" />
+        <geom name="RR_link1_vis" type="mesh" mesh="RR_link1_mesh" rgba="0.2 0.2 0.25 1" contype="0" conaffinity="0" />
+
+        <body name="RR_link2" pos="-0.0495999992169147 0.0144000000000178 0" quat="0.000000214 0.707106781 -0.000000214 -0.707106781">
+          <joint name="RR_theta2" type="hinge" axis="0 0 1" range="-3 3" />
+          <geom name="RR_link2_vis" type="mesh" mesh="RR_link2_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+          <body name="RR_link3" pos="0.13000000353672 0 0" quat="0.707106902 0 0 0.707106660">
+            <joint name="RR_theta3" type="hinge" axis="0 0 1" range="-3 3" />
+            <geom name="RR_link3_vis" type="mesh" mesh="RR_link3_mesh" rgba="0.25 0.25 0.3 1" contype="0" conaffinity="0" />
+
+            <body name="RR_link4" pos="0.138136646352431 0 0" quat="1 0 0 0">
+              <geom name="RR_foot" type="sphere" size="0.02" rgba="0.2 0.2 0.2 1" contype="1" conaffinity="1" mass="0.05" />
+            </body>
+          </body>
+        </body>
+      </body>
+
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- Position-servo actuators (ctrl = desired joint position, radians). -->
+    <position name="FL_theta1" joint="FL_theta1" kp="120" kv="10" ctrlrange="-0.785398 0.785398" forcerange="-130 130" />
+    <position name="FL_theta2" joint="FL_theta2" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+    <position name="FL_theta3" joint="FL_theta3" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+
+    <position name="FR_theta1" joint="FR_theta1" kp="120" kv="10" ctrlrange="-0.785398 0.785398" forcerange="-130 130" />
+    <position name="FR_theta2" joint="FR_theta2" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+    <position name="FR_theta3" joint="FR_theta3" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+
+    <position name="RL_theta1" joint="RL_theta1" kp="120" kv="10" ctrlrange="-0.785398 0.785398" forcerange="-130 130" />
+    <position name="RL_theta2" joint="RL_theta2" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+    <position name="RL_theta3" joint="RL_theta3" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+
+    <position name="RR_theta1" joint="RR_theta1" kp="120" kv="10" ctrlrange="-0.785398 0.785398" forcerange="-130 130" />
+    <position name="RR_theta2" joint="RR_theta2" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+    <position name="RR_theta3" joint="RR_theta3" kp="200" kv="16" ctrlrange="-3 3" forcerange="-160 160" />
+  </actuator>
+</mujoco>

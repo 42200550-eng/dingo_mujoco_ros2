@@ -1,0 +1,80 @@
+dingo_gait_controller_cpp:
+  ros__parameters:
+    # Wiring
+    cmd_vel_topic: /cmd_vel
+    joint_states_topic: /joint_states
+    odom_topic: /odom
+    cmd_topic: /joint_group_position_controller/commands
+
+    # Loop
+    rate_hz: 100.0
+
+    # --- Robot configuration (edit here for stand pose / naming) ---
+    model_base_body: base_link
+
+    joints:
+      - FL_theta1
+      - FL_theta2
+      - FL_theta3
+      - FR_theta1
+      - FR_theta2
+      - FR_theta3
+      - RL_theta1
+      - RL_theta2
+      - RL_theta3
+      - RR_theta1
+      - RR_theta2
+      - RR_theta3
+
+    # Stand pose used when cmd_vel ~ 0 (12 values in the same joint order)
+    stand_joint_positions:
+      - 0.000999
+      - 0.719617
+      - 0.000339
+      - 0.001002
+      - 0.719615
+      - 0.000339
+      - 0.000999
+      - 0.719617
+      - 0.000339
+      - 0.001002
+      - 0.719615
+      - 0.000339
+
+    # Foot bodies + joint triplets per leg (names must match MJCF)
+    legs:
+      FL:
+        foot_body: FL_link4
+        joints: [FL_theta1, FL_theta2, FL_theta3]
+      FR:
+        foot_body: FR_link4
+        joints: [FR_theta1, FR_theta2, FR_theta3]
+      RL:
+        foot_body: RL_link4
+        joints: [RL_theta1, RL_theta2, RL_theta3]
+      RR:
+        foot_body: RR_link4
+        joints: [RR_theta1, RR_theta2, RR_theta3]
+
+    phase_offsets: [0.0, 0.5, 0.5, 0.0]
+
+    # --- Behavior when not walking ---
+    vel_deadband: 0.01
+
+    # --- Gait ---
+    gait_period_s: 0.8
+    duty_factor: 0.65
+    swing_height_m: 0.035
+    step_length_max_m: 0.08
+    step_width_max_m: 0.05
+    max_vx_m_s: 0.20
+    max_vy_m_s: 0.12
+    max_wz_rad_s: 0.6
+    yaw_step_max_rad: 0.25
+
+    # --- IK (DLS Jacobian) ---
+    ik_iters: 15
+    ik_lambda: 0.02
+    ik_tol_m: 0.0001
+    ik_max_err_m: 0.015
+    ik_dq_limit_rad: 0.12

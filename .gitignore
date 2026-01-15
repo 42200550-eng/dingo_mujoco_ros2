@@ -1,0 +1,18 @@
+# Colcon / ROS2 build artifacts
+build/
+install/
+log/
+
+# Local artifacts (videos, dumps)
+artifacts/
+
+# Python caches
+**/__pycache__/
+*.pyc
+
+# CMake / editor noise
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+.vscode/

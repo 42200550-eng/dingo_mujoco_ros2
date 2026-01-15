@@ -1,0 +1,502 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="dingo">
+
+    <!-- Dingo Quadruped Properties -->
+    <!-- Effort limit used by URDF joint limits. Too low makes legs feel "soft" in sim. -->
+    <xacro:property name="effort_limit" value="120" />
+    <xacro:property name="velocity_limit" value="3" />
+    
+    <!-- Leg dimensions (meters) -->
+    <xacro:property name="hip_offset_x" value="0.11165" />
+    <xacro:property name="hip_offset_y" value="0.061" />
+    <xacro:property name="hip_offset_z" value="0.0144" />
+    <xacro:property name="hip_to_upper_leg" value="0.0496" />
+    <xacro:property name="upper_leg_length" value="0.13" />
+    <!-- Matches SolidWorks-exported (legacy) URDF foot joint offset -->
+    <xacro:property name="lower_leg_length" value="0.1381366463524" />
+    
+        <!-- NOTE: This URDF is used for TF (robot_state_publisher) in the MuJoCo stack.
+            Keep it free of Gazebo / ros2_control plugin blocks to avoid extra, unused files. -->
+
+    <!-- ==================== BASE LINK ==================== -->
+    <link name="base_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.81776" />
+            <inertia ixx="0.00058474" ixy="-1.0045E-06" ixz="1.0886E-08"
+                     iyy="0.00029699" iyz="3.2027E-08" izz="0.00063853" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/base_link.dae" />
+            </geometry>
+            <material name="grey">
+                <color rgba="0.79216 0.81961 0.93333 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/base_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <!-- ==================== FRONT LEFT LEG ==================== -->
+    <!-- FL Hip (theta1) -->
+    <link name="FL_link1">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.30" />
+            <inertia ixx="0.000193" ixy="0" ixz="0" iyy="0.0001489" iyz="0" izz="0.0001241" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/FL_link1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link1_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FL_theta1" type="revolute">
+        <origin xyz="${hip_offset_x} ${hip_offset_y} -${hip_offset_z}" rpy="1.5708 0 1.5708" />
+        <parent link="base_link" />
+        <child link="FL_link1" />
+        <axis xyz="0 0 1" />
+        <limit lower="-0.785398" upper="0.785398" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- FL Upper Leg (theta2) -->
+    <link name="FL_link2">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.000007" ixy="0" ixz="0.00000444" iyy="0.0001726" iyz="0" izz="0.00017568" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link2_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FL_theta2" type="revolute">
+        <origin xyz="${hip_to_upper_leg} 0.0144 0" rpy="1.5708 1.5708 -1.5708" />
+        <parent link="FL_link1" />
+        <child link="FL_link2" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- FL Lower Leg (theta3) -->
+    <link name="FL_link3">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.00000936" ixy="-0.0000136" ixz="-0.00000319" iyy="0.00019747" iyz="-0.00000027" izz="0.00019702" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link3_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FL_theta3" type="revolute">
+        <origin xyz="${upper_leg_length} 0 0" rpy="0 0 1.5708" />
+        <parent link="FL_link2" />
+        <child link="FL_link3" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- FL Foot -->
+    <link name="FL_link4">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05" />
+            <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/link4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.02" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FL_foot_joint" type="fixed">
+        <origin xyz="${lower_leg_length} 0 0" rpy="0 0 0" />
+        <parent link="FL_link3" />
+        <child link="FL_link4" />
+    </joint>
+
+    <!-- ==================== FRONT RIGHT LEG ==================== -->
+    <!-- FR Hip (theta1) -->
+    <link name="FR_link1">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.30" />
+            <inertia ixx="0.000193" ixy="0" ixz="0" iyy="0.0001489" iyz="0" izz="0.0001241" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/FR_link1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link1_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FR_theta1" type="revolute">
+        <origin xyz="${hip_offset_x} -${hip_offset_y} -${hip_offset_z}" rpy="1.5708 0 1.5708" />
+        <parent link="base_link" />
+        <child link="FR_link1" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-0.785398" upper="0.785398" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- FR Upper Leg (theta2) -->
+    <link name="FR_link2">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.000007" ixy="0" ixz="0.00000444" iyy="0.0001726" iyz="0" izz="0.00017568" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link2_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FR_theta2" type="revolute">
+        <origin xyz="-${hip_to_upper_leg} 0.0144 0" rpy="1.5708 1.5708 -1.5708" />
+        <parent link="FR_link1" />
+        <child link="FR_link2" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- FR Lower Leg (theta3) -->
+    <link name="FR_link3">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.00000936" ixy="-0.0000136" ixz="-0.00000319" iyy="0.00019747" iyz="-0.00000027" izz="0.00019702" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link3_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FR_theta3" type="revolute">
+        <origin xyz="${upper_leg_length} 0 0" rpy="0 0 1.5708" />
+        <parent link="FR_link2" />
+        <child link="FR_link3" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- FR Foot -->
+    <link name="FR_link4">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05" />
+            <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/link4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.02" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="FR_foot_joint" type="fixed">
+        <origin xyz="${lower_leg_length} 0 0" rpy="0 0 0" />
+        <parent link="FR_link3" />
+        <child link="FR_link4" />
+    </joint>
+
+    <!-- ==================== REAR LEFT LEG ==================== -->
+    <!-- RL Hip (theta1) -->
+    <link name="RL_link1">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.30" />
+            <inertia ixx="0.000193" ixy="0" ixz="0" iyy="0.0001489" iyz="0" izz="0.0001241" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/RL_link1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link1_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RL_theta1" type="revolute">
+        <origin xyz="-${hip_offset_x} ${hip_offset_y} -${hip_offset_z}" rpy="1.5708 0 1.5708" />
+        <parent link="base_link" />
+        <child link="RL_link1" />
+        <axis xyz="0 0 1" />
+        <limit lower="-0.785398" upper="0.785398" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- RL Upper Leg (theta2) -->
+    <link name="RL_link2">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.000007" ixy="0" ixz="0.00000444" iyy="0.0001726" iyz="0" izz="0.00017568" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link2_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RL_theta2" type="revolute">
+        <origin xyz="${hip_to_upper_leg} 0.0144 0" rpy="1.5708 1.5708 -1.5708" />
+        <parent link="RL_link1" />
+        <child link="RL_link2" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- RL Lower Leg (theta3) -->
+    <link name="RL_link3">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.00000936" ixy="-0.0000136" ixz="-0.00000319" iyy="0.00019747" iyz="-0.00000027" izz="0.00019702" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/L_link3_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RL_theta3" type="revolute">
+        <origin xyz="${upper_leg_length} 0 0" rpy="0 0 1.5708" />
+        <parent link="RL_link2" />
+        <child link="RL_link3" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- RL Foot -->
+    <link name="RL_link4">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05" />
+            <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/link4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.02" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RL_foot_joint" type="fixed">
+        <origin xyz="${lower_leg_length} 0 0" rpy="0 0 0" />
+        <parent link="RL_link3" />
+        <child link="RL_link4" />
+    </joint>
+
+    <!-- ==================== REAR RIGHT LEG ==================== -->
+    <!-- RR Hip (theta1) -->
+    <link name="RR_link1">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.30" />
+            <inertia ixx="0.000193" ixy="0" ixz="0" iyy="0.0001489" iyz="0" izz="0.0001241" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/RR_link1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link1_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RR_theta1" type="revolute">
+        <origin xyz="-${hip_offset_x} -${hip_offset_y} -${hip_offset_z}" rpy="1.5708 0 1.5708" />
+        <parent link="base_link" />
+        <child link="RR_link1" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-0.785398" upper="0.785398" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- RR Upper Leg (theta2) -->
+    <link name="RR_link2">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.000007" ixy="0" ixz="0.00000444" iyy="0.0001726" iyz="0" izz="0.00017568" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link2_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RR_theta2" type="revolute">
+        <origin xyz="-${hip_to_upper_leg} 0.0144 0" rpy="1.5708 1.5708 -1.5708" />
+        <parent link="RR_link1" />
+        <child link="RR_link2" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- RR Lower Leg (theta3) -->
+    <link name="RR_link3">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.10" />
+            <inertia ixx="0.00000936" ixy="-0.0000136" ixz="-0.00000319" iyy="0.00019747" iyz="-0.00000027" izz="0.00019702" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/R_link3_collision.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RR_theta3" type="revolute">
+        <origin xyz="${upper_leg_length} 0 0" rpy="0 0 1.5708" />
+        <parent link="RR_link2" />
+        <child link="RR_link3" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3" upper="3" effort="${effort_limit}" velocity="${velocity_limit}" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- RR Foot -->
+    <link name="RR_link4">
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05" />
+            <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find dingo_config)/meshes/link4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.02" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RR_foot_joint" type="fixed">
+        <origin xyz="${lower_leg_length} 0 0" rpy="0 0 0" />
+        <parent link="RR_link3" />
+        <child link="RR_link4" />
+    </joint>
+
+</robot>

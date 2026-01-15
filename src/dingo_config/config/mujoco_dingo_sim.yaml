@@ -1,0 +1,47 @@
+mujoco_dingo_sim:
+  ros__parameters:
+    # Topics / frames
+    cmd_topic: /joint_group_position_controller/commands
+    joint_states_topic: /joint_states
+    odom_topic: /odom
+    base_frame: base_link
+    odom_frame: odom
+
+    # Sim loop
+    sim_rate_hz: 500.0
+    publish_rate_hz: 200.0
+    clock_publish_rate_hz: 100.0
+
+    # Rendering defaults (launch can override)
+    render: false
+    render_rate_hz: 60.0
+
+    # Command source
+    control_mode: ros  # ros | viewer
+
+    # What to do when no command is available
+    idle_mode: hold_initial  # hold_initial | hold_last
+
+    # Joint order must match controller and MJCF
+    joints:
+      - FL_theta1
+      - FL_theta2
+      - FL_theta3
+      - FR_theta1
+      - FR_theta2
+      - FR_theta3
+      - RL_theta1
+      - RL_theta2
+      - RL_theta3
+      - RR_theta1
+      - RR_theta2
+      - RR_theta3
+
+    # Use CSV strings for easy copy/paste from /mujoco_dingo_sim/dump_pose
+    initial_positions_csv: "0.000999,0.719617,0.000339,0.001002,0.719615,0.000339,0.000999,0.719617,0.000339,0.001002,0.719615,0.000339"
+
+    # Optional sign compensation. Keep all +1 if you already fixed the model conventions.
+    joint_signs_csv: "1,1,1, 1,1,1, 1,1,1, 1,1,1"
+
+    # Safety / smoothing
+    max_target_rate_rad_s: 3.0
